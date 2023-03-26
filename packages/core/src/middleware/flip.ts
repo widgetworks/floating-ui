@@ -122,7 +122,7 @@ export const flip = (
     overflowsData = [...overflowsData, {placement, overflows}];
 
     // One or more sides is overflowing.
-    if (!overflows.every((side) => side <= 0)) {
+    if (!overflows.every((side) => side <= 0) || overflow.isIntersecting) {
       const nextIndex = (middlewareData.flip?.index || 0) + 1;
       const nextPlacement = placements[nextIndex];
 

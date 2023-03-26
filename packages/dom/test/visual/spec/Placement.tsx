@@ -1,5 +1,5 @@
 import type {Placement as PlacementType} from '@floating-ui/core';
-import {useFloating} from '@floating-ui/react-dom';
+import {autoUpdate, flip, shift, useFloating} from '@floating-ui/react-dom';
 import {useLayoutEffect, useState} from 'react';
 
 import {allPlacements} from '../utils/allPlacements';
@@ -11,6 +11,8 @@ export function Placement() {
   const [placement, setPlacement] = useState<PlacementType>('bottom');
   const {x, y, reference, floating, strategy, update} = useFloating({
     placement,
+    middleware: [shift(), flip()],
+    whileElementsMounted: autoUpdate,
   });
   const [size, handleSizeChange] = useSize();
 
@@ -39,6 +41,42 @@ export function Placement() {
           }}
         >
           Floating
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            top: 400,
+            left: 400,
+            background: 'orange',
+            padding: 15,
+          }}
+          data-floating-ui-collidable
+        >
+          Collidable
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            top: 400,
+            left: 800,
+            background: 'orange',
+            padding: 15,
+          }}
+          data-floating-ui-collidable
+        >
+          Collidable
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            top: 250,
+            left: 475,
+            background: 'orange',
+            padding: 15,
+          }}
+          data-floating-ui-collidable
+        >
+          Collidable
         </div>
       </div>
 

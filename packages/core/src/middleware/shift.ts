@@ -57,6 +57,8 @@ export const shift = (
     const mainAxis = getMainAxisFromPlacement(getSide(placement));
     const crossAxis = getCrossAxis(mainAxis);
 
+    console.log(overflow.collidableIntersections);
+
     let mainAxisCoord = coords[mainAxis];
     let crossAxisCoord = coords[crossAxis];
 
@@ -67,6 +69,24 @@ export const shift = (
       const max = mainAxisCoord - overflow[maxSide];
 
       mainAxisCoord = within(min, mainAxisCoord, max);
+
+      console.log(overflow.collidableIntersections);
+
+      if (overflow.collidableIntersections.length) {
+        if (mainAxis === 'x') {
+          mainAxisCoord +=
+            overflow.collidableIntersections[0].x *
+            (overflow.collidableIntersections[0].xDirection === 'right'
+              ? 1
+              : -1);
+        } else {
+          mainAxisCoord +=
+            overflow.collidableIntersections[0].y *
+            (overflow.collidableIntersections[0].yDirection === 'bottom'
+              ? 1
+              : -1);
+        }
+      }
     }
 
     if (checkCrossAxis) {

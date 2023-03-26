@@ -1,12 +1,15 @@
 import type {
   Boundary,
+  Coords,
   ElementContext,
   MiddlewareState,
   Padding,
   RootBoundary,
+  Side,
   SideObject,
 } from './types';
 import {getSideObjectFromPadding} from './utils/getPaddingObject';
+import {max, min} from './utils/math';
 import {rectToClientRect} from './utils/rectToClientRect';
 
 export interface Options {
@@ -53,7 +56,14 @@ export interface Options {
 export async function detectOverflow(
   state: MiddlewareState,
   options: Partial<Options> = {}
-): Promise<SideObject> {
+): Promise<
+  SideObject & {
+    isIntersecting: boolean;
+    collidableIntersections: Array<
+      Coords & {xDirection: Side; yDirection: Side}
+    >;
+  }
+> {
   const {x, y, platform, rects, elements, strategy} = state;
 
   const {
@@ -99,7 +109,80 @@ export async function detectOverflow(
       : rect
   );
 
+  const collidables = Array.from(
+    document.querySelectorAll('[data-floating-ui-collidable]')
+  );
+
+  function getIsIntersecting(element: Element) {
+    const {top, left, bottom, right} = element.getBoundingClientRect();
+    return (
+      elementClientRect.top < bottom &&
+      elementClientRect.bottom > top &&
+      elementClientRect.left < right &&
+      elementClientRect.right > left
+    );
+  }
+
+  const isIntersecting = collidables.some(getIsIntersecting);
+
+  // Check how much the element is intersecting with a collidable
+  const collidableIntersections = collidables
+    .filter(getIsIntersecting)
+    .map((collidable) => {
+      const collidableClientRect = collidable.getBoundingClientRect();
+
+      const xDirection: Side =
+        elementClientRect.left + elementClientRect.width / 2 <
+        collidableClientRect.left + collidableClientRect.width / 2
+          ? 'left'
+          : 'right';
+      const yDirection: Side =
+        elementClientRect.top + elementClientRect.height / 2 <
+        collidableClientRect.top + collidableClientRect.height / 2
+          ? 'top'
+          : 'bottom';
+
+      const leftOp =
+        xDirection === 'right'
+          ? elementClientRect.left < collidableClientRect.left
+          : elementClientRect.left > collidableClientRect.left;
+      const rightOp =
+        xDirection === 'right'
+          ? elementClientRect.right > collidableClientRect.right
+          : elementClientRect.right < collidableClientRect.right;
+      const topOp =
+        yDirection === 'bottom'
+          ? elementClientRect.top < collidableClientRect.top
+          : elementClientRect.top > collidableClientRect.top;
+      const bottomOp =
+        yDirection === 'bottom'
+          ? elementClientRect.bottom > collidableClientRect.bottom
+          : elementClientRect.bottom < collidableClientRect.bottom;
+
+      const left = leftOp
+        ? min(elementClientRect.left, collidableClientRect.left)
+        : max(elementClientRect.left, collidableClientRect.left);
+      const right = rightOp
+        ? min(elementClientRect.right, collidableClientRect.right)
+        : max(elementClientRect.right, collidableClientRect.right);
+      const top = topOp
+        ? min(elementClientRect.top, collidableClientRect.top)
+        : max(elementClientRect.top, collidableClientRect.top);
+      const bottom = bottomOp
+        ? min(elementClientRect.bottom, collidableClientRect.bottom)
+        : max(elementClientRect.bottom, collidableClientRect.bottom);
+
+      return {
+        x: right - left,
+        y: bottom - top,
+        xDirection,
+        yDirection,
+      };
+    });
+
   return {
+    isIntersecting,
+    collidableIntersections,
     top:
       (clippingClientRect.top - elementClientRect.top + paddingObject.top) /
       offsetScale.y,
