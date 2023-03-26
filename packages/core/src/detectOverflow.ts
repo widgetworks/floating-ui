@@ -123,11 +123,14 @@ export async function detectOverflow(
     );
   }
 
-  const isIntersecting = collidables.some(getIsIntersecting);
+  const isIntersecting = collidables
+    .filter((el) => el !== element)
+    .some(getIsIntersecting);
 
   // Check how much the element is intersecting with a collidable
   const collidableIntersections = collidables
     .filter(getIsIntersecting)
+    .filter((el) => el !== element)
     .map((collidable) => {
       const collidableClientRect = collidable.getBoundingClientRect();
 
