@@ -67,7 +67,7 @@
     "jest-environment-jsdom": "^29.3.1",
     "parcel": "^2.6.0",
     "patch-package": "^6.5.0",
-    "postcss": "^8.4.21",
+    "postcss": "^8.4.31",
     "prettier": "^2.5.0",
     "process": "^0.11.10",
     "rollup": "^2.79.1",
