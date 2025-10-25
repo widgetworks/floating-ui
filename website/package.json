@@ -35,7 +35,7 @@
     "@floating-ui/react": "^0.22.0",
     "@mdx-js/loader": "^2.1.1",
     "@mdx-js/react": "^2.1.1",
-    "@next/mdx": "^12.1.5",
+    "@next/mdx": "^12.3.7",
     "classnames": "^2.3.1",
     "next": "^13.0.7",
     "npm-api": "^1.0.1",
